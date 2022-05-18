@@ -1,0 +1,71 @@
+//npm에서 hash.js 설치하고 아래 코드 작성해야 함 안그러면 hash 없다는 오류 발생 
+const hash = require("hash.js");
+
+class Block {
+    constructor(data) { // 블록 설계도 
+        // 블록헤더 
+        this.index=data.index; // 블록넘버
+        this.preHash = data.preHash; // 이전 블록 해시 
+        this.timeStamp = data.timeStamp; // 타임스탬프
+        this.nonce = data.nonce; // 해시퍼즐정답 
+        this.bits = data.bits; // 난이도 비트
+        this.difficulty = data.difficulty; // 난이도
+        this.hash=data.hash; // 현재블록해시 
+        // 블록바디 
+        this.transactions = data.transactions; // 트랜잭션 리스트 
+        }
+
+        //제네시스 블록 
+        //static을 붙여준 이유는 이 값을 그대로 사용하기 위해서. 블록을 통해서 생성한다
+        // 굳이 클래스로부터 객체생성하고 데이터 넣어서 처리하기 않기 위해
+        static getGenesis(){ 
+
+            const genesisData = { 
+                index:0, 
+                preHash:"GENESIS BLOCK",
+                timeStamp:Date.now(),
+                transactions:["제 2의 구제금융"],
+                difficulty:1,
+                bits:48660479, //난이도 1을 비트로 변환하면 이 값이 나옴
+                nonce:0,
+                hash:"GENESIS BLOCK"
+            };
+            // 블록설계도 그대로 이용하여 제네시스 블록 생성
+            const genesisBlock = new Block(genesisData);
+            return genesisBlock;
+        }
+
+        getHash() { 
+            const resultHash = hash
+             .sha256()
+             .update(
+                 //블록들에 대한 내용을 가지고 해시시켜서 결과값을 받는다
+                 this.index + 
+                 this.preHash + 
+                 this.timeStamp + 
+                 this.transactions +
+                 this.nonce
+             )
+             .digest("hex");
+             return resultHash;
+        }
+
+    
+}
+
+
+const data = {index:1, preHash:"Hello",timeStamp:"dasd",nonce:1,bits:00000000,difficulty:030,hash:00000001};
+
+const block1 = new Block(data);
+const result = block1.getHash(); 
+//console.log("해시값:",result);
+
+/*console.log(block1.index);
+console.log(block1.preHash);
+console.log(block1.timeStamp);
+console.log(block1.nonce);
+console.log(block1.bits);
+console.log(block1.difficulty);
+console.log(block1.hash); */
+
+console.log(Block.getGenesis());
